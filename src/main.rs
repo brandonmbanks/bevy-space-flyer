@@ -1,6 +1,11 @@
 use bevy::{prelude::*, window::PresentMode};
+use player::PlayerPlugin;
+
+mod components;
+mod player;
 
 pub const RESOLUTION: f32 = 16.0 / 9.0;
+const TIME_STEP: f32 = 1. / 60.;
 
 struct WindowSize {
     w: f32,
@@ -21,6 +26,7 @@ fn main() {
             ..default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(PlayerPlugin)
         .add_startup_system(setup)
         .add_system(bevy::input::system::exit_on_esc_system)
         .run();
