@@ -30,7 +30,7 @@ fn spawn_player_system(mut commands: Commands, window_size: Res<WindowSize>) {
         .spawn_bundle(SpriteBundle {
             sprite,
             transform: Transform {
-                translation: Vec3::new(left + 60.0, 0.0, 1.0),
+                translation: Vec3::new(left + 60.0, 0.0, 5.0),
                 ..default()
             },
             ..default()
