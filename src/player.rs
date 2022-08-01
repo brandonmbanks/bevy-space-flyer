@@ -6,6 +6,7 @@ use crate::{
 };
 
 const SPEED: f32 = 500.;
+const PLAYER_SIZE: f32 = 40.;
 
 pub struct PlayerPlugin;
 
@@ -20,7 +21,7 @@ impl Plugin for PlayerPlugin {
 fn spawn_player_system(mut commands: Commands, window_size: Res<WindowSize>) {
     let sprite = Sprite {
         color: Color::WHITE,
-        custom_size: Some(Vec2::splat(40.0)),
+        custom_size: Some(Vec2::splat(PLAYER_SIZE)),
         ..default()
     };
 
@@ -59,11 +60,19 @@ fn player_input_system(kb: Res<Input<KeyCode>>, mut query: Query<&mut Velocity, 
     }
 }
 
-fn player_movement_system(mut query: Query<(&Velocity, &mut Transform), With<Player>>) {
+fn player_movement_system(mut query: Query<(&Velocity, &mut Transform), With<Player>>, window_size: Res<WindowSize>) {
     for (velocity, mut transform) in query.iter_mut() {
         let translation = &mut transform.translation;
 
-        translation.x += velocity.x * TIME_STEP * SPEED;
-        translation.y += velocity.y * TIME_STEP * SPEED;
+        let new_x = translation.x + velocity.x * TIME_STEP * SPEED;
+        let new_y = translation.y + velocity.y * TIME_STEP * SPEED;
+
+        let left_bound = -window_size.w / 2. + PLAYER_SIZE / 2.;
+        let right_bound = window_size.w / 2. - PLAYER_SIZE / 2.;
+        let bottom_bound = -window_size.h / 2. + PLAYER_SIZE / 2.;
+        let top_bound = window_size.h / 2. - PLAYER_SIZE / 2.;
+
+        translation.x = new_x.clamp(left_bound, right_bound);
+        translation.y = new_y.clamp(bottom_bound, top_bound);
     }
 }
