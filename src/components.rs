@@ -1,4 +1,4 @@
-use bevy::prelude::Component;
+use bevy::{prelude::Component, core::Timer};
 
 #[derive(Component)]
 pub struct Velocity {
@@ -11,3 +11,8 @@ pub struct Player;
 
 #[derive(Component)]
 pub struct Star;
+
+#[derive(Component)]
+pub struct Astroid;
+
+pub struct AstroidTimer(pub Timer);
