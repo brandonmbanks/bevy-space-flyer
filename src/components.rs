@@ -1,4 +1,4 @@
-use bevy::{prelude::Component, core::Timer};
+use bevy::{core::Timer, prelude::Component};
 
 #[derive(Component)]
 pub struct Velocity {

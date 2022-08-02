@@ -10,6 +10,7 @@ mod space;
 pub const RESOLUTION: f32 = 16. / 9.;
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 400.;
+const SPRITE_SCALE: f32 = 3.;
 
 struct WindowSize {
     w: f32,
