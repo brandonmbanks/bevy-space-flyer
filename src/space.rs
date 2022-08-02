@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use rand::{thread_rng, Rng};
 
 use crate::{
-    components::{Star, Velocity, Astroid, AstroidTimer},
-    WindowSize,
+    components::{Astroid, AstroidTimer, Star, Velocity},
+    WindowSize, SPRITE_SCALE,
 };
 
 pub struct SpacePlugin;
@@ -76,33 +76,42 @@ fn spawn_star_constellation_system(mut commands: Commands, window_size: Res<Wind
     }
 }
 
-fn spawn_asteroids_system(mut commands: Commands, window_size: Res<WindowSize>, time: Res<Time>, mut timer: ResMut<AstroidTimer>) {
+fn spawn_asteroids_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    window_size: Res<WindowSize>,
+    time: Res<Time>,
+    mut timer: ResMut<AstroidTimer>,
+) {
     if timer.0.tick(time.delta()).just_finished() {
         let mut rng = thread_rng();
+
+        let sprites = [
+            "asteroid_01.png",
+            "asteroid_02.png",
+            "asteroid_03.png",
+        ];
+
+        let img = sprites[rng.gen_range(0..sprites.len())];
 
         let right = window_size.w / 2.;
 
         for _ in 0..rng.gen_range(0..2) {
             let rand_y = rng.gen_range((-window_size.h / 2.)..(window_size.h / 2.));
-            let size = rng.gen_range(20.0..80.0);
-
-            let sprite = Sprite {
-                color: Color::WHITE,
-                custom_size: Some(Vec2::splat(size)),
-                ..default()
-            };
+            let scale = rng.gen_range(SPRITE_SCALE..7.0);
 
             commands
                 .spawn_bundle(SpriteBundle {
-                    sprite,
+                    texture: asset_server.load(img),
                     transform: Transform {
-                        translation: Vec3::new(right + 10., rand_y, 10.),
+                        translation: Vec3::new(right + 100., rand_y, rng.gen_range(15.0..25.0)),
+                        scale: Vec3::new(scale, scale, 1.),
                         ..default()
                     },
                     ..default()
                 })
                 .insert(Astroid)
-                .insert(Velocity { x: -2.0, y: 0.0 });
+                .insert(Velocity { x: -1.5, y: 0.0 });
         }
     }
 }

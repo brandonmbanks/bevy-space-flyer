@@ -2,11 +2,11 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Player, Velocity},
-    WindowSize, TIME_STEP,
+    WindowSize, BASE_SPEED, SPRITE_SCALE, TIME_STEP,
 };
 
-const SPEED: f32 = 500.;
-const PLAYER_SIZE: f32 = 40.;
+const PLAYER_SIZE: f32 = 48.;
+const PLAYER_IMG: &str = "player.png";
 
 pub struct PlayerPlugin;
 
@@ -18,20 +18,19 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn spawn_player_system(mut commands: Commands, window_size: Res<WindowSize>) {
-    let sprite = Sprite {
-        color: Color::WHITE,
-        custom_size: Some(Vec2::splat(PLAYER_SIZE)),
-        ..default()
-    };
-
+fn spawn_player_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    window_size: Res<WindowSize>,
+) {
     let left = -window_size.w / 2.0;
 
     commands
         .spawn_bundle(SpriteBundle {
-            sprite,
+            texture: asset_server.load(PLAYER_IMG),
             transform: Transform {
                 translation: Vec3::new(left + 60.0, 0.0, 5.0),
+                scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
                 ..default()
             },
             ..default()
@@ -60,12 +59,15 @@ fn player_input_system(kb: Res<Input<KeyCode>>, mut query: Query<&mut Velocity, 
     }
 }
 
-fn player_movement_system(mut query: Query<(&Velocity, &mut Transform), With<Player>>, window_size: Res<WindowSize>) {
+fn player_movement_system(
+    mut query: Query<(&Velocity, &mut Transform), With<Player>>,
+    window_size: Res<WindowSize>,
+) {
     for (velocity, mut transform) in query.iter_mut() {
         let translation = &mut transform.translation;
 
-        let new_x = translation.x + velocity.x * TIME_STEP * SPEED;
-        let new_y = translation.y + velocity.y * TIME_STEP * SPEED;
+        let new_x = translation.x + velocity.x * TIME_STEP * BASE_SPEED;
+        let new_y = translation.y + velocity.y * TIME_STEP * BASE_SPEED;
 
         let left_bound = -window_size.w / 2. + PLAYER_SIZE / 2.;
         let right_bound = window_size.w / 2. - PLAYER_SIZE / 2.;
