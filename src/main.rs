@@ -1,5 +1,10 @@
-use bevy::{prelude::*, window::PresentMode};
-use components::Velocity;
+use bevy::{
+    math::Vec3Swizzles,
+    prelude::*,
+    sprite::collide_aabb::{collide},
+    window::PresentMode,
+};
+use components::{Astroid, Collider, CollisionEvent, Player, SpriteSize, Velocity};
 use player::PlayerPlugin;
 use space::SpacePlugin;
 
@@ -35,6 +40,8 @@ fn main() {
         .add_plugin(SpacePlugin)
         .add_startup_system(setup_system)
         .add_system(movement_system)
+        .add_system(collision_system)
+        .add_event::<CollisionEvent>()
         .add_system(bevy::input::system::exit_on_esc_system)
         .run();
 }
@@ -69,6 +76,37 @@ fn movement_system(
             || translation.x < -window_size.w / 2. - MARGIN
         {
             commands.entity(entity).despawn();
+        }
+    }
+}
+
+fn collision_system(
+    mut commands: Commands,
+    player_query: Query<(Entity, &Transform, &SpriteSize), With<Player>>,
+    collider_query: Query<(Entity, &Transform, &SpriteSize, Option<&Astroid>), With<Collider>>,
+    mut collision_events: EventWriter<CollisionEvent>,
+) {
+    let (_player_entity, player_tf, player_size) = player_query.single();
+    let player_scale = Vec2::from(player_tf.scale.xy());
+
+    for (collider_entity, transform, sprite_size, maybe_astroid) in collider_query.iter() {
+        let scale = Vec2::from(transform.scale.xy());
+
+        let collision = collide(
+            player_tf.translation,
+            player_size.0 * player_scale,
+            transform.translation,
+            sprite_size.0 * scale,
+        );
+
+        if let Some(_collision) = collision {
+            collision_events.send_default();
+
+            println!("Collision");
+
+            if maybe_astroid.is_some() {
+                commands.entity(collider_entity).despawn();
+            }
         }
     }
 }

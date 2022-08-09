@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use rand::{thread_rng, Rng};
 
 use crate::{
-    components::{Astroid, AstroidTimer, Star, Velocity},
+    components::{Astroid, AstroidTimer, Collider, SpriteSize, Star, Velocity},
     WindowSize, SPRITE_SCALE,
 };
 
@@ -86,11 +86,7 @@ fn spawn_asteroids_system(
     if timer.0.tick(time.delta()).just_finished() {
         let mut rng = thread_rng();
 
-        let sprites = [
-            "asteroid_01.png",
-            "asteroid_02.png",
-            "asteroid_03.png",
-        ];
+        let sprites = ["asteroid_01.png", "asteroid_02.png", "asteroid_03.png"];
 
         let img = sprites[rng.gen_range(0..sprites.len())];
 
@@ -105,12 +101,14 @@ fn spawn_asteroids_system(
                     texture: asset_server.load(img),
                     transform: Transform {
                         translation: Vec3::new(right + 100., rand_y, rng.gen_range(15.0..25.0)),
-                        scale: Vec3::new(scale, scale, 1.),
+                        scale: Vec3::new(scale, scale, 1.0),
                         ..default()
                     },
                     ..default()
                 })
                 .insert(Astroid)
+                .insert(SpriteSize::from((16., 16.)))
+                .insert(Collider)
                 .insert(Velocity { x: -1.5, y: 0.0 });
         }
     }
